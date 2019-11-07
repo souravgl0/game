@@ -18,6 +18,12 @@ var Core = new function(){
 	var ORGANISM_ENEMY = 'enemy',
 		ORGANISM_ENERGY = 'energy';
 
+    var LOVE = "type1",
+        STUDY = "type2",
+        MONEY = "type3",
+        SPORTS = "type4",
+        SOCIAL = "type5";
+
 	// The world dimensions
 	var world = {
 		width: isMobile ? window.innerWidth : DEFAULT_WIDTH,
@@ -42,6 +48,10 @@ var Core = new function(){
 	var particles = [];
 	var player;
 
+    // Accept/Reject types
+    var accept_types = [];
+    var reject_types = [];
+
 	// Mouse properties
 	var mouseX = (window.innerWidth + world.width) * 0.5;
 	var mouseY = (window.innerHeight + world.height) * 0.5;
@@ -55,6 +65,11 @@ var Core = new function(){
 	var duration = 0;
 	var difficulty = 1;
 	var lastspawn = 0;
+
+    var level = 0;
+
+    // Animating
+    var animating = false;
 
 	// Game statistics
 	var fc = 0; // Frame count
@@ -110,7 +125,7 @@ var Core = new function(){
 				canvas.style.border = 'none';
 			}
 
-			animate();
+			// animate();
 		}
 	};
 
@@ -127,13 +142,62 @@ var Core = new function(){
 	 * Handles click on the start button in the UI.
 	 */
 	function startButtonClickHandler(event){
-		if( playing == false ) {
+        startNewGame();
+	}
+
+    function startNewGame(){
+        score = 0;
+        difficulty = 1;
+
+        level = 1;
+
+        player.energy = 3;
+
+        accept_types = [STUDY,LOVE];
+        reject_types = [MONEY,SPORTS,SOCIAL];
+
+        time = new Date().getTime();
+        continueGame();
+    }
+
+    function levelFinished(){
+
+        playing = false;
+        animating = false;
+
+        // Display Messages etc.
+        // Wait for continue button
+
+    }
+
+    function newlevelBegin(){
+        //player.energy = 3;
+        if(level == 4){
+            //
+            playing=false;
+            stopAnimating();
+            //
+            gameOver();
+        }
+        else{
+            level+=1;
+
+            playing = false;
+            stopAnimating()
+
+            player.energy = 30;
+            continueGame();
+        }
+    }
+
+    function continueGame(){
+        if( playing == false ) {
 			playing = true;
+            animating = true;
 
 			// Reset game properties
 			organisms = [];
-			score = 0;
-			difficulty = 1;
+            particles = [];
 
 			// Reset game tracking properties
 			fc = 0;
@@ -141,17 +205,18 @@ var Core = new function(){
 			ms = 0;
 			cs = 0;
 
-			// Reset the player data
-			player.energy = 30;
-
 			// Hide the game UI
 			panels.style.display = 'none';
 			status.style.display = 'block';
 
-			time = new Date().getTime();
+            animate();
 		}
-	}
+    }
 
+
+    function stopAnimating(){
+        animating = false;
+    }
 	/**
 	 * Stops the currently ongoing game and shows the
 	 * resulting data in the UI.
@@ -159,6 +224,7 @@ var Core = new function(){
 	function gameOver() {
 		playing = false;
 
+        stopAnimating();
 		// Determine the duration of the game
 		duration = new Date().getTime() - time;
 
@@ -458,8 +524,8 @@ var Core = new function(){
 
 			p.alpha += ( 1 - p.alpha ) * 0.1;
 
-			if( p.type == ORGANISM_ENEMY ) context.fillStyle = 'rgba( 255, 0, 0, ' + p.alpha + ' )';
-			if( p.type == ORGANISM_ENERGY ) context.fillStyle = 'rgba( 0, 235, 190, ' + p.alpha + ' )';
+            if (reject_types.indexOf(p.type) >=0)  context.fillStyle = 'rgba( 255, 0, 0, ' + p.alpha + ' )';
+			if (accept_types.indexOf(p.type) >=0)  context.fillStyle = 'rgba( 0, 235, 190, ' + p.alpha + ' )';
 
 			context.beginPath();
 			context.arc(p.position.x, p.position.y, p.size/2, 0, Math.PI*2, true);
@@ -490,14 +556,14 @@ var Core = new function(){
 				}
 
 				if (p.distanceTo(player.position) < player.energyRadius + (p.size * 0.5)) {
-					if (p.type == ORGANISM_ENEMY) {
+					if (reject_types.indexOf(p.type) >=0) {
 						player.energy -= 6;
 
 						// play sound
 						CoreAudio.energyDown();
 					}
 
-					if (p.type == ORGANISM_ENERGY) {
+					if (accept_types.indexOf(p.type)>=0) {
 						player.energy += 8;
 						score += 30;
 
@@ -520,25 +586,31 @@ var Core = new function(){
 			if( p.dead ) {
 				emitParticles( p.position, { x: (p.position.x - player.position.x) * 0.02, y: (p.position.y - player.position.y) * 0.02 }, 5, 5 );
 
+                // console.log(i);
+                // console.log(organisms);
 				organisms.splice( i, 1 );
+                // console.log(organisms);
+
 				i --;
 			}
 			else {
-				if( p.type == ORGANISM_ENEMY ) enemyCount ++;
-				if( p.type == ORGANISM_ENERGY ) energyCount ++;
+				// if( p.type == ORGANISM_ENEMY ) enemyCount ++;
+				// if( p.type == ORGANISM_ENERGY ) energyCount ++;
+                enemyCount++;
 			}
 		}
 
 		// If there are less enemies than intended for this difficulty, add another one
 		if( enemyCount < 1 * difficulty && new Date().getTime() - lastspawn > 100 ) {
-			organisms.push( giveLife( new Enemy() ) );
+            var type = Math.floor(Math.random() * 5) + 1  ;
+			organisms.push( giveLife( new Food( "type" + type ) ) );
 			lastspawn = new Date().getTime();
 		}
 
 		//
-		if( energyCount < 1 && Math.random() > 0.996 ) {
-			organisms.push( giveLife( new Energy() ) );
-		}
+		// if( energyCount < 1 && Math.random() > 0.996 ) {
+		// 	organisms.push( giveLife( new Energy() ) );
+		// }
 
 		// Go through and draw all particle effects
 		for( i = 0; i < particles.length; i++ ) {
@@ -565,20 +637,27 @@ var Core = new function(){
 		if( playing ) {
 			scoreText = 'Score: <span>' + Math.round( score ) + '</span>';
 			scoreText += ' Time: <span>' + Math.round( ( ( new Date().getTime() - time ) / 1000 ) * 100 ) / 100 + 's</span>';
+            scoreText += ' Level: <span>' + level + '</span>';
 			scoreText += ' <p class="fps">FPS: <span>' + Math.round( fps ) + ' ('+Math.round(Math.max(Math.min(fps/FRAMERATE, FRAMERATE), 0)*100)+'%)</span></p>';
 			status.innerHTML = scoreText;
 
 			if( player.energy === 0 ) {
 				emitParticles( player.position, { x: 0, y: 0 }, 10, 40 );
 
-				gameOver();
 
+				// gameOver();
+                newlevelBegin();
 				// play sound
 				CoreAudio.playGameOver();
 			}
 		}
 
-		requestAnimFrame( animate );
+		if(animating) {
+            requestAnimFrame( animate );
+        }
+        else {
+            context.clearRect(0,0,canvas.width,canvas.height);
+        }
 	}
 
 	/**
@@ -698,6 +777,16 @@ function Energy() {
 	this.type = 'energy';
 }
 Energy.prototype = new Point();
+
+function Food(type) {
+    this.position = { x: 0, y: 0 };
+	this.velocity = { x: 0, y: 0 };
+	this.size = 10 + ( Math.random() * 6 );
+	this.speed = 1;
+	this.type = type;
+}
+Food.prototype = new Point();
+
 
 // shim with setTimeout fallback from http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 window.requestAnimFrame = (function(){
