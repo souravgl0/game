@@ -111,6 +111,8 @@ var Core = new function(){
         after_phase2 = document.getElementById('after-phase2');
         after_phase3 = document.getElementById('after-phase3');
 
+        health = document.getElementById("heal");
+
 		if (canvas && canvas.getContext) {
 			context = canvas.getContext('2d');
 
@@ -309,6 +311,9 @@ var Core = new function(){
 
 		// Show the UI
 		panels.style.display = 'block';
+    panels.style.backgroundRepeat = "no-repeat";
+    panels.style.backgroundSize = "cover";
+    panels.style.backgroundImage   = "url('https://cdn.shopify.com/s/files/1/1002/7150/files/2019-06-17_large.jpg')";
 
 		// Ensure that the score is an integer
 		score = Math.round(score);
@@ -560,6 +565,9 @@ var Core = new function(){
 			player.energyRadiusTarget = ( player.energy / 100 ) * ( player.radius * 0.8 );
 			player.energyRadius += ( player.energyRadiusTarget - player.energyRadius ) * 0.2;
 
+
+      health.value = player.energy;
+
 			player.shield = { x: player.position.x + Math.cos( player.angle ) * player.radius, y: player.position.y + Math.sin( player.angle ) * player.radius };
 
 			// Shield
@@ -568,6 +576,10 @@ var Core = new function(){
 			context.lineWidth = 3;
 			context.arc( player.position.x, player.position.y, player.radius, player.angle + 1.6, player.angle - 1.6, true );
 			context.stroke();
+
+      //Custom Animated Core
+      context.font = '40px serif';
+      context.fillText('👩🏻', player.position.x, player.position.y);
 
 			// Core
 			context.beginPath();
@@ -589,11 +601,11 @@ var Core = new function(){
 
 				if( i == 0 ) {
 					// This is the first loop, so we need to start by moving into position
-					context.moveTo( p.position.x, p.position.y );
+					///context.moveTo( p.position.x, p.position.y );
 				}
 				else if( p2 ) {
 					// Draw a curve between the current and next trail point
-					context.quadraticCurveTo( p.position.x, p.position.y, p.position.x + ( p2.position.x - p.position.x ) / 2, p.position.y + ( p2.position.y - p.position.y ) / 2 );
+					///context.quadraticCurveTo( p.position.x, p.position.y, p.position.x + ( p2.position.x - p.position.x ) / 2, p.position.y + ( p2.position.y - p.position.y ) / 2 );
 				}
 			}
 

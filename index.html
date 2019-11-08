@@ -29,14 +29,12 @@
 					Protect the core from incoming red projectiles. Let green ones through.
 					<em>Press &amp; hold SPACE</em> for a temporary shield.
 				</p>
-				<p class="credits">
-					Created by <a href="http://hakim.se/">Hakim El Hattab</a> (<a href="http://twitter.com/hakimel">@hakimel</a>). Sound by <a href="https://twitter.com/_luisbergmann">Luis Bergmann</a>.
-				</p>
 				<button id="startButton" class="start-button">Start game</button>
 			</div>
 		</div>
 
-        <div id="after-phase1" class="ui">
+
+        <div id="after-phase1" class="ui" height="10px" width="10px">
             PHASE 1 OVER
             PRESS TO CONTINUE
             <button id="continueButton1" class="start-button">Continue game</button>
@@ -94,6 +92,12 @@
                 <p>
                     0
                 </p>
+                </div>
+
+              <div>
+                <br>
+                <h3>Health</h3>
+                <progress id="heal" value="100" max="100" style = "width: 135px"></progress>
                 </div>
             </div>
         </div>
