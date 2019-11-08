@@ -14,6 +14,7 @@ var Core = new function(){
 		BORDER_WIDTH = 6,
 		FRAMERATE = 60;
 
+    var PHASE_DURATION = 2;
 	// Types of organisms
 	var ORGANISM_ENEMY = 'enemy',
 		ORGANISM_ENERGY = 'energy';
@@ -106,6 +107,9 @@ var Core = new function(){
         time_display = document.getElementById('time-display');
         level_display = document.getElementById('level-display');
 
+        after_phase1 = document.getElementById('after-phase1');
+        after_phase2 = document.getElementById('after-phase2');
+        after_phase3 = document.getElementById('after-phase3');
 
 		if (canvas && canvas.getContext) {
 			context = canvas.getContext('2d');
@@ -120,7 +124,10 @@ var Core = new function(){
 			document.addEventListener('touchmove', documentTouchMoveHandler, false);
 			document.addEventListener('touchend', documentTouchEndHandler, false);
 			window.addEventListener('resize', windowResizeHandler, false);
-			startButton.addEventListener('click', startButtonClickHandler, false);
+            startButton.addEventListener('click', startButtonClickHandler, false);
+            continueButton1.addEventListener('click', continueButtonClickHandler, false);
+            continueButton2.addEventListener('click', continueButtonClickHandler, false);
+			continueButton3.addEventListener('click', continueButtonClickHandler, false);
 			document.addEventListener('keydown', documentKeyDownHandler, false);
 			document.addEventListener('keyup', documentKeyUpHandler, false);
 
@@ -129,6 +136,11 @@ var Core = new function(){
 
 			// Force an initial resize to make sure the UI is sized correctly
 			windowResizeHandler();
+
+            // Hide After Phase Messages
+            after_phase1.style.display = 'none';
+            after_phase2.style.display = 'none';
+            after_phase3.style.display = 'none';
 
 			// If we are running on mobile, certain elements need to be configured differently
 			if( isMobile ) {
@@ -154,6 +166,13 @@ var Core = new function(){
 	 */
 	function startButtonClickHandler(event){
         startNewGame();
+	}
+
+    /**
+	 * Handles click on the continue button in the UI.
+	 */
+	function continueButtonClickHandler(event){
+        newlevelBegin();
 	}
 
     function get_accept_types(level){
@@ -188,7 +207,7 @@ var Core = new function(){
 
         level = 1;
 
-        player.energy = 3;
+        player.energy = 30;
 
         accept_types = get_accept_types(level);
         reject_types = get_reject_types(accept_types);
@@ -200,11 +219,23 @@ var Core = new function(){
     function levelFinished(){
 
         playing = false;
-        animating = false;
+        stopAnimating();
+
+        if(level == 1){
+            after_phase1.style.display="block";
+        }
+        else if(level == 2){
+            after_phase2.style.display="block";
+        }
+        else if(level ==3 ){
+            after_phase3.style.display="block";
+        }
+        else if(level == 4){
+            gameOver();
+        }
 
         // Display Messages etc.
         // Wait for continue button
-
     }
 
     function newlevelBegin(){
@@ -228,6 +259,9 @@ var Core = new function(){
             reject_types = get_reject_types(accept_types);
 
             player.energy = 30;
+
+            time = new Date().getTime();
+
             continueGame();
         }
     }
@@ -250,6 +284,9 @@ var Core = new function(){
 			// Hide the game UI
 			panels.style.display = 'none';
 			status.style.display = 'block';
+            after_phase1.style.display = 'none';
+            after_phase2.style.display = 'none';
+            after_phase3.style.display = 'none';
 
             animate();
 		}
@@ -416,6 +453,22 @@ var Core = new function(){
 			panels.style.height = world.height + 'px';
 			status.style.left = cvx + BORDER_WIDTH + 'px';
 			status.style.top = cvy + BORDER_WIDTH + 'px';
+
+            after_phase1.style.left = cvx + BORDER_WIDTH + 'px';
+            after_phase1.style.top = cvy + BORDER_WIDTH + 'px';
+            after_phase1.style.width = world.width + 'px';
+            after_phase1.style.height = world.height + 'px';
+
+            after_phase2.style.left = cvx + BORDER_WIDTH + 'px';
+            after_phase2.style.top = cvy + BORDER_WIDTH + 'px';
+            after_phase2.style.width = world.width + 'px';
+            after_phase2.style.height = world.height + 'px';
+
+            after_phase3.style.left = cvx + BORDER_WIDTH + 'px';
+            after_phase3.style.top = cvy + BORDER_WIDTH + 'px';
+            after_phase3.style.width = world.width + 'px';
+            after_phase3.style.height = world.height + 'px';
+
 		}
 
 		renderBackground();
@@ -734,10 +787,16 @@ var Core = new function(){
 
 
 				// gameOver();
-                newlevelBegin();
+                // newlevelBegin();
 				// play sound
 				CoreAudio.playGameOver();
 			}
+
+            var elapsedTime = Math.round( ( ( new Date().getTime() - time ) / 1000 ) * 100 ) / 100;
+            if(elapsedTime > PHASE_DURATION){
+                levelFinished();
+            }
+
 		}
 
 		if(animating) {
