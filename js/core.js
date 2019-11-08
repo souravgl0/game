@@ -145,6 +145,32 @@ var Core = new function(){
         startNewGame();
 	}
 
+    function get_accept_types(level){
+        if(level == 1){
+            return [STUDY,LOVE];
+        }
+        if(level == 2){
+            return [STUDY];
+        }
+        if(level == 3){
+            return [LOVE,SPORTS,SOCIAL,STUDY];
+        }
+        if(level == 4){
+            return [MONEY,SOCIAL,LOVE];
+        }
+    }
+    function get_reject_types(accept_types){
+        all_types = [STUDY,LOVE,MONEY,SPORTS,SOCIAL];
+
+        reject_types = [];
+        for(var i=0;i<all_types.length;i++){
+            if(!(accept_types.indexOf(all_types[i])>=0)){
+                reject_types.push(all_types[i]);
+            }
+        }
+        return reject_types;
+    }
+
     function startNewGame(){
         score = 0;
         difficulty = 1;
@@ -153,8 +179,8 @@ var Core = new function(){
 
         player.energy = 3;
 
-        accept_types = [STUDY,LOVE];
-        reject_types = [MONEY,SPORTS,SOCIAL];
+        accept_types = get_accept_types(level);
+        reject_types = get_reject_types(accept_types);
 
         time = new Date().getTime();
         continueGame();
@@ -182,8 +208,13 @@ var Core = new function(){
         else{
             level+=1;
 
+            //
             playing = false;
             stopAnimating()
+            //
+
+            accept_types = get_accept_types(level);
+            reject_types = get_reject_types(accept_types);
 
             player.energy = 30;
             continueGame();
