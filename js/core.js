@@ -9,7 +9,7 @@ var Core = new function(){
 	// Flags if we are running mobile mode
 	var isMobile = !!navigator.userAgent.toLowerCase().match( /ipod|ipad|iphone|android/gi );
 
-	var DEFAULT_WIDTH = 1000,
+	var DEFAULT_WIDTH = 900,
 		DEFAULT_HEIGHT = 650,
 		BORDER_WIDTH = 6,
 		FRAMERATE = 60;
@@ -31,7 +31,8 @@ var Core = new function(){
 	};
 
 	var canvas,
-		context;
+		context,
+        sidebar;
 
 	var canvasBackground,
 		contextBackground;
@@ -42,6 +43,10 @@ var Core = new function(){
 	var message;
 	var title;
 	var startButton;
+    var accept_display;
+    var score_display;
+    var time_display;
+    var level_display;
 
 	// Game elements
 	var organisms = [];
@@ -88,13 +93,19 @@ var Core = new function(){
 
 	this.init = function(){
 
-		canvas = document.getElementById('world');
+        canvas = document.getElementById('world');
 		canvasBackground = document.getElementById('background');
+        sidebar = document.getElementById('sidebar');
 		panels = document.getElementById('panels');
 		status = document.getElementById('status');
 		message = document.getElementById('message');
 		title = document.getElementById('title');
 		startButton = document.getElementById('startButton');
+        accept_display = document.getElementById('accept-display');
+        score_display = document.getElementById('score-display');
+        time_display = document.getElementById('time-display');
+        level_display = document.getElementById('level-display');
+
 
 		if (canvas && canvas.getContext) {
 			context = canvas.getContext('2d');
@@ -367,9 +378,20 @@ var Core = new function(){
 		canvasBackground.width = world.width;
 		canvasBackground.height = world.height;
 
+        var sidebarwidth = world.width/5;
+
+        sidebar.style.width = sidebarwidth + "px";
+        sidebar.style.height = world.height + "px";
+        sidebar.style.position = 'absolute';
+
+
 		// Determine the x/y position of the canvas
-		var cvx = (window.innerWidth - world.width) * 0.5;
+		var cvx = (window.innerWidth - world.width - sidebarwidth) * 0.5;
 		var cvy = (window.innerHeight - world.height) * 0.5;
+
+        // console.log((cvx + world.width) + 'px');
+        sidebar.style.left = (cvx + world.width) + 'px';
+        sidebar.style.top = cvy + 'px';
 
 		// Position the canvas
 		canvas.style.position = 'absolute';
@@ -560,8 +582,8 @@ var Core = new function(){
       context.textAlign = "center";
       context.textBaseline = "middle";
       context.shadowBlur=40;
-      if (reject_types.indexOf(p.type) >=0) context.shadowColor="green";
-			if (accept_types.indexOf(p.type) >=0) context.shadowColor="red";
+      if (reject_types.indexOf(p.type) >=0) context.shadowColor="red";
+	  if (accept_types.indexOf(p.type) >=0) context.shadowColor="green";
 
       switch (p.type) {
         case LOVE:
@@ -601,8 +623,8 @@ var Core = new function(){
 					}
 				}
 
-        // if (spaceIsDown && p.distanceTo(player.position) < player.radius && player.energy > 11) {
-				if ( p.distanceTo(player.position) < player.radius ) {
+                if (spaceIsDown && p.distanceTo(player.position) < player.radius && player.energy > 11) {
+				// if ( p.distanceTo(player.position) < player.radius ) {
 					p.dead = true;
 					score += 4;
 				}
@@ -697,6 +719,16 @@ var Core = new function(){
 			scoreText += ' <p class="fps">FPS: <span>' + Math.round( fps ) + ' ('+Math.round(Math.max(Math.min(fps/FRAMERATE, FRAMERATE), 0)*100)+'%)</span></p>';
 			status.innerHTML = scoreText;
 
+            var accept_text ="";
+            for(var i=0;i<accept_types.length;i++){
+                accept_text +=  to_icon(accept_types[i]) + " ";
+            }
+
+            accept_display.innerHTML = accept_text;
+            score_display.innerHTML = Math.round(score);
+            time_display.innerHTML = Math.round( ( ( new Date().getTime() - time ) / 1000 ) * 100 ) / 100;
+            level_display.innerHTML = level;
+
 			if( player.energy === 0 ) {
 				emitParticles( player.position, { x: 0, y: 0 }, 10, 40 );
 
@@ -716,6 +748,20 @@ var Core = new function(){
         }
 	}
 
+    function to_icon(type){
+        switch(type){
+              case LOVE:
+                return '❤️';
+              case STUDY:
+                return '📚';
+              case MONEY:
+                return '💰';
+              case SPORTS:
+                return '⚽';
+              case SOCIAL:
+                return '🍺';
+        }
+    }
 	/**
 	 *
 	 */
