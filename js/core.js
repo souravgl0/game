@@ -555,12 +555,32 @@ var Core = new function(){
 
 			p.alpha += ( 1 - p.alpha ) * 0.1;
 
-            if (reject_types.indexOf(p.type) >=0)  context.fillStyle = 'rgba( 255, 0, 0, ' + p.alpha + ' )';
-			if (accept_types.indexOf(p.type) >=0)  context.fillStyle = 'rgba( 0, 235, 190, ' + p.alpha + ' )';
 
-			context.beginPath();
-			context.arc(p.position.x, p.position.y, p.size/2, 0, Math.PI*2, true);
-			context.fill();
+      context.font = '30px serif';
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      context.shadowBlur=40;
+      if (reject_types.indexOf(p.type) >=0) context.shadowColor="green";
+			if (accept_types.indexOf(p.type) >=0) context.shadowColor="red";
+
+      switch (p.type) {
+        case LOVE:
+          context.fillText('❤️', p.position.x, p.position.y);
+          break;
+        case STUDY:
+          context.fillText('📚', p.position.x, p.position.y);
+          break;
+        case MONEY:
+          context.fillText('💰', p.position.x, p.position.y);
+          break;
+        case SPORTS:
+          context.fillText('⚽', p.position.x, p.position.y);
+          break;
+        case SOCIAL:
+          context.fillText('🍺', p.position.x, p.position.y);
+          break;
+      }
+      context.shadowBlur=0;
 
 			var angle = Math.atan2( p.position.y - player.position.y, p.position.x - player.position.x );
 
@@ -581,7 +601,8 @@ var Core = new function(){
 					}
 				}
 
-				if (spaceIsDown && p.distanceTo(player.position) < player.radius && player.energy > 11) {
+        // if (spaceIsDown && p.distanceTo(player.position) < player.radius && player.energy > 11) {
+				if ( p.distanceTo(player.position) < player.radius ) {
 					p.dead = true;
 					score += 4;
 				}
@@ -656,7 +677,11 @@ var Core = new function(){
 
 			// Draw the particle
 			context.fillStyle = 'rgba(255,255,255,'+Math.max(p.alpha,0)+')';
-			context.fillRect( p.position.x, p.position.y, 1, 1 );
+			/*context.fillRect( p.position.x, p.position.y, 1, 1 );
+      context.font = '25px serif';
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      context.fillText('🔥', p.position.x, p.position.y);*/
 
 			// If the particle is faded out to less than zero, remove it
 			if( p.alpha <= 0 ) {
@@ -812,7 +837,7 @@ Energy.prototype = new Point();
 function Food(type) {
     this.position = { x: 0, y: 0 };
 	this.velocity = { x: 0, y: 0 };
-	this.size = 10 + ( Math.random() * 6 );
+	this.size = 20;// + ( Math.random() * 6 );
 	this.speed = 1;
 	this.type = type;
 }
