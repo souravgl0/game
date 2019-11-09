@@ -801,7 +801,7 @@ var Core = new function(){
 				// gameOver();
                 // newlevelBegin();
 				// play sound
-				CoreAudio.playGameOver();
+				// CoreAudio.playGameOver();
 			}
 
             var elapsedTime = Math.round( ( ( new Date().getTime() - time ) / 1000 ) * 100 ) / 100;
