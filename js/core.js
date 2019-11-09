@@ -180,16 +180,16 @@ var Core = new function(){
 
     function get_accept_types(level){
         if(level == 1){
-            return [STUDY,LOVE];
+            return [STUDY,LOVE,MONEY];
         }
         if(level == 2){
-            return [STUDY];
+            return [LOVE,SPORTS];
         }
         if(level == 3){
-            return [LOVE,SPORTS,SOCIAL,STUDY];
+            return [LOVE,SPORTS,MONEY,STUDY];
         }
         if(level == 4){
-            return [MONEY,SOCIAL,LOVE];
+            return [LOVE,MONEY];
         }
     }
     function get_reject_types(accept_types){
@@ -800,10 +800,10 @@ var Core = new function(){
 				emitParticles( player.position, { x: 0, y: 0 }, 10, 40 );
 
 
-				// gameOver();
+				gameOver();
                 // newlevelBegin();
 				// play sound
-				// CoreAudio.playGameOver();
+				CoreAudio.playGameOver();
 			}
 
             var elapsedTime = Math.round( ( ( new Date().getTime() - time ) / 1000 ) * 100 ) / 100;
