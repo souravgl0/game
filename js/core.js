@@ -101,6 +101,7 @@ var Core = new function(){
 		status = document.getElementById('status');
 		message = document.getElementById('message');
 		title = document.getElementById('title');
+    janet_intro = document.getElementById('janet-intro');
 		startButton = document.getElementById('startButton');
         accept_display = document.getElementById('accept-display');
         score_display = document.getElementById('score-display');
@@ -319,7 +320,8 @@ var Core = new function(){
 		score = Math.round(score);
 
 		// Write the users score to the UI
-		title.innerHTML = 'Game Over! (' + score + ' points)';
+		title.innerHTML = '<br><br><br><br><br><br><br><br><br>Game Over! (' + score + ' points)';
+    janet_intro.innerHTML = '';
 
 		// Update the status bar with the final score and time
 		scoreText = 'Score: <span>' + Math.round( score ) + '</span>';
